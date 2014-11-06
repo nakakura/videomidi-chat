@@ -1,0 +1,133 @@
+<html>
+<head>
+  <title>Video & MIDI Chat - Powered by Skyway</title>
+  <style>
+  h1, h2, h3 {
+    margin:0px 0px 0px 0px; padding: 20px 0px 0px 0px;
+  }
+  p {
+    margin:3px 0px; padding:0px 0px;
+  }
+  div#video-container {
+    height:320px;
+  }
+  div#p-my-video {
+    position:absolute;
+    transition:0.3s;
+    opacity:1;
+    left:20px;
+    top:20px;
+  }
+  div#p-their-video {
+    position:absolute;
+    left:10px;
+    top:10px;
+  }
+  div#controlArea {
+    position:relative;
+  }
+  span.light-midi {
+    opacity:0.1;
+    color:#000;
+    transition:0.5s;
+  }
+  span.device-connected {
+    color:#ff0000;
+  }
+  div.mic-level {
+    width:10px; height:10px; border-radius:50%; margin:2px 6px 3px 3px;float:left;
+  }
+  div#recievedMidi {
+    font-family:monospace, Arial;
+    margin:20px 30px;
+    padding:10px;
+    border:solid #eeeeee 1px;
+    border-radius:3px;
+    width:400px;
+  }
+  </style>
+</head>
+
+<body>
+  
+  <div class="pure-g">
+    <!-- Video area -->
+    <div class="pure-u-2-3" id="video-container">
+      <div id="p-their-video"><video id="their-video" height="300px" autoplay></video></div>
+      <div id="p-my-video"><video id="my-video" height="100px" muted="true" autoplay muted></video></div>
+    </div>
+    
+    
+    <!-- Steps -->
+    <div id="controlArea" class="pure-u-1-3">
+      <h2>Video & MIDI Chat</h2>
+      <div id="error"></div>
+      
+      <!-- Get local audio/video stream -->
+      <a href="#" class="pure-button pure-button-error" id="step1-retry">Try again</a>
+      
+      <!-- Camera Setting -->
+      <div style="color:#000000;">
+        <h3>Camera Setting</h3>
+        <select id="videoInput">
+          <option>default (selection not supported)</option>
+        </select>
+      </div>
+
+      <!-- Volume Setting -->
+      <div style="color:#000000;">
+        <h3>Volume Setting</h3>
+        <div style="height:50px:"> 
+          <div class="mic-level" style="box-shadow:rgba(0, 0, 0, 0.2) 0px 0px 2px 2px;"><div id="my-analyser" class="mic-level" style="margin:0px; background-color:#FF6D00; transition:0.5s; opacity:0;"></div></div>
+          <div style="float:left; margin-right:5px;">My:</div> 
+          <div style="float:left;"><input type="range" id="my-volume" max="1.0" min="0.0" value="0.1" step="0.1" style="width:200px;"></div>
+        </div>
+        <div style="clear:both;">
+
+<!--
+        <div>
+          <div class="mic-level" style="box-shadow:rgba(0, 0, 0, 0.2) 0px 0px 2px 2px;"><div id="their-analyser" class="mic-level" style="margin:0px; background-color:#FF6D00; transition:0.5s; opacity:0;"></div></div>
+          <div style="float:left; margin-right:5px;">Their:</div> 
+          <div style="float:left;"><input type="range" id="their-volume" max="1.0" min="0.0" value="0.1" step="0.1" style="width:200px;"></div>
+        </div>
+      </div>
+      <div style="clear:both;">
+-->
+      <!-- Make calls to others -->
+      <div id="step2">
+        <h3>Connection Informtion</h3>
+        <p>Your id: <span id="my-id">...</span></p>
+        <h3>Make a call</h3>
+        <div class="pure-form">
+          <button id="update-peerinfo">Update</button>
+          <select id="theirid-sel"></select>
+          <button id="make-call">Call</button>
+        </div>
+      </div>
+      
+      <!-- Call in progress -->
+      <div id="step3">
+        <h3>Connected</h3>
+        <p>Currently in call with <span id="their-id">...</span></p>
+        <p><button class="pure-button pure-button-error" id="end-call">End call</button></p>
+        
+
+        <h3>Send Message</h3>
+        <button id="sendmessage">send</button>
+        
+      </div>
+    </div>
+  </div>
+  
+  <h3>MIDI</h3>
+  <div><span id="light-midiin" class="light-midi">&#9836;</span> MIDI IN: <select id="midiinputs-list"></select> <button id="midiin-con">Connect</button></div>
+  <div><span id="light-midiout" class="light-midi">&#9836;</span> MIDI OUT: <select id="midioutputs-list"></select> <button id="midiout-con">Connect</button></div>
+  <p style="margin-top:10px;">Recieved MIDI Message:</p>
+  <div id="recievedMidi"></div>
+
+
+  <script type="text/javascript" src="https://skyway.io/dist/0.3/peer.js"></script>
+  <script type="text/javascript" src="js/app.js"></script>
+  
+</body>
+</html>
