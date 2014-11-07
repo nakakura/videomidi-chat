@@ -38,14 +38,9 @@ peer.on('call', function(call){
 
 // Receiving a data connection
 peer.on('connection', function(conn){
-    console.log("[Data Channel:connected]");
     // Answer the dataconnection automatically (instead of prompting user) for demo purposes
+    console.log("[Data Channel:connected]");
     step4(conn);
-    document.getElementById("sendmessage").addEventListener("click", function(){
-        // メッセージを送信
-        console.log("[send message]");
-        conn.send('Hello!');
-    });
 });
 
 peer.on('error', function(err){
@@ -196,6 +191,7 @@ function step3 (call) {
     call.on('stream', function(stream){
         document.getElementById('their-video').setAttribute("src", URL.createObjectURL(stream));
         //setAudio(stream, "their");
+        document.getElementById('p-my-video').style.setProperty("opacity", "0.6");
         document.getElementById('my-video').style.setProperty("opacity", "0.6");
     });
         
@@ -224,7 +220,7 @@ var connRecieve=function(data){
 function step4 (conn) {
     conn.on('open', function() {
         connSend=function(data){
-            conn.send(data);
+            conn.send(data); // w/o MIDI connection
         };
         conn.on('data', function(data) {
             connRecieve(data);
@@ -236,9 +232,24 @@ function step4 (conn) {
 // MIDI
 requestMIDI();
 var midi, inputs, outputs, midiInIdx, midiOutIdx;
+var chshim=1, pgchange=1;
 var recieve=[];
 var sendMidiMessage=function(){};
 var recieveMidiMessage=function(){};
+document.getElementById("chshim").addEventListener("change", function(event){
+    chshim=event.target.value;
+    var elm = document.getElementById("pgchange");
+    var evt = document.createEvent("MouseEvents");
+    evt.initEvent("change", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+    elm.dispatchEvent(evt);
+});
+document.getElementById("pgchange").addEventListener("change", function(event){
+    pgchange=event.target.value;
+    var msg=JSON.stringify({"midi": "0xC"+(document.getElementById("chshim").value-1).toString(16)+","+ "0x"+(parseInt(pgchange)-1).toString(16) });
+    console.log(msg);
+    connSend(msg);
+});
+
 function requestMIDI() {
     navigator.requestMIDIAccess( { sysex: true } ).then( scb, ecb );
     function scb(access) {
@@ -270,7 +281,11 @@ function requestMIDI() {
             sendMIDIMessage=function(event){
                 var out=[];
                 for(var i=0; i<event.data.length; i++) {
-                    out.push("0x"+event.data[i].toString(16));
+                    out[i]=("0x"+event.data[i].toString(16));
+                    if(i==0) {
+                        var chshim=(document.getElementById("chshim").value-1).toString(16);
+                        out[i]="0x"+event.data[i].toString(16).substr(0,1)+chshim;
+                    }
                 }
                 connSend(JSON.stringify({"midi":out.join(",")}));
                 document.getElementById("light-midiin").style.setProperty("opacity", "1");
